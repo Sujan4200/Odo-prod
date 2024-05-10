@@ -8,6 +8,8 @@ services:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
       - ./local-addons:/mnt/extra-addons
+    ports:
+      - "8090:8069"
     networks:
       - odoo
   db:
@@ -22,19 +24,21 @@ services:
       - odoo-db-data:/var/lib/postgresql/data/pgdata
     networks:
       - odoo
-  nginx:
-    image: nginx:latest
+  proxy:
     depends_on:
-      - web
+            - web
+    container_name: odoo_proxy
+    build:
+        context: .
+        dockerfile: Dockerfile-nginx
     ports:
-      - "80:8069"
-    volumes:
-      - ./config/odoo-nginx.conf:/etc/nginx/conf.d/default.conf
+        - "8069:8069"
     networks:
       - odoo
+
 networks:
   odoo:
-    driver: overlay
+    driver: bridge
 
 
 volumes:
